@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS77 - Permit to Work System (Pro)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --primary-orange: #ff6600;
+            --bg-light: #f4f7f6;
+            --text-dark: #333;
+            --border-color: #ccc;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 950px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        /* Header & Logo */
+        .header-logo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header-logo img { max-height: 80px; }
+        .header-title { text-align: center; }
+        .header-title h1 { margin: 0; color: var(--primary-blue); font-size: 24px; }
+        .header-title p { margin: 5px 0 0; font-size: 14px; color: #666; }
+
+        /* Form Styling */
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        legend {
+            font-weight: bold;
+            color: var(--primary-blue);
+            padding: 0 10px;
+            font-size: 15px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: span 2; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+        input[type="text"], input[type="date"], input[type="time"], input[type="datetime-local"], select, textarea {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        
+        /* Checkbox Groups */
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+        .checkbox-group label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+        }
+
+        /* E-Signature Pad */
+        .signature-pad-container {
+            position: relative;
+            border: 2px dashed var(--primary-blue);
+            border-radius: 5px;
+            background: #fafafa;
+            width: 100%;
+            height: 150px;
+        }
+        canvas.signature-pad {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .signature-clear-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger-red);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            z-index: 10;
+        }
+        .signature-placeholder {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #aaa;
+            font-size: 13px;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-pdf { background-color: var(--danger-red); }
+        .btn-excel { background-color: var(--success-green); }
+        .btn-close-permit { background-color: var(--primary-orange); }
+        .btn-pdf:hover { background-color: #c82333; }
+        .btn-excel:hover { background-color: #218838; }
+        .btn-close-permit:hover { background-color: #e65c00; }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-closed { background: #f8d7da; color: #721c24; }
+
+        /* Footer Styles */
+        .social-footer-container {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary-blue);
+            text-align: center;
+        }
+        .social-footer-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .social-icon {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            text-decoration: none;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .social-icon:hover { transform: translateY(-3px); }
+        .linkedin { background: #0077b5; }
+        .facebook { background: #1877f2; }
+        .instagram { background: #e4405f; }
+        .whatsapp { background: #25d366; }
+        .shopee { background: #ee4d2d; }
+        .tiktok { background: #000000; }
+        .social-icon .tooltip {
+            visibility: hidden;
+            width: 80px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -40px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        .social-icon:hover .tooltip { visibility: visible; opacity: 1; }
+        .footer-credits { font-size: 14px; color: #555; }
+        .mt-1\.5 { margin-top: 6px; }
+
+        /* Print Media Query untuk PDF */
+        @media print {
+            body { background: #fff; margin: 0; }
+            .container { box-shadow: none; margin: 0; padding: 15px; max-width: 100%; }
+            .action-buttons, .social-footer-bar, .tooltip, .signature-clear-btn { display: none !important; }
+            input, select, textarea { border: none; border-bottom: 1px solid #000; background: transparent; }
+            fieldset { border: 1px solid #000; page-break-inside: avoid; }
+            .header-logo { border-bottom: 2px solid #000; }
+            .signature-pad-container { border: 1px solid #000; background: #fff; }
+            .signature-placeholder { display: none; }
+            .status-badge { border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header-logo">
+        <img src="logo_cs77.png" alt="CS77 Logo" onerror="this.src='https://via.placeholder.com/150x80/0056b3/ffffff?text=CS77'">
+        <div class="header-title">
+            <h1>WORK PERMIT (PTW)</h1>
+            <p>Izin Keselamatan Kerja - CS77 Standard</p>
+            <span id="permitStatus" class="status-badge status-active">ACTIVE</span>
+        </div>
+        <img src="logo_whale.png" alt="Whale Logo" onerror="this.src='https://via.placeholder.com/80x80/0056b3/ffffff?text=Whale'">
+    </div>
+
+    <!-- Formulir -->
+    <form id="ptwForm">
+        <!-- Section 1: General Information -->
+        <fieldset>
+            <legend>1. General Information</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Permit Number (Auto)</label>
+                    <input type="text" id="permitNo" value="CS77-PTW-2026-001" readonly style="background:#e9ecef;">
+                </div>
+                <div class="form-group">
+                    <label>Permit Type *</label>
+                    <select id="permitType" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="Hot Work">Hot Work (Pengelasan, Gerinda)</option>
+                        <option value="Confined Space">Confined Space Entry</option>
+                        <option value="Work at Height">Work at Height</option>
+                        <option value="Electrical">Electrical Work</option>
+                        <option value="Excavation">Excavation</option>
+                        <option value="General">General / Cold Work</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valid From *</label>
+                    <input type="datetime-local" id="validFrom" required>
+                </div>
+                <div class="form-group">
+                    <label>Valid To *</label>
+                    <input type="datetime-local" id="validTo" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Exact Location / Area *</label>
+                    <input type="text" id="location" placeholder="e.g., Area 4, Compressor Room, Level 2" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Job Description / Scope of Work *</label>
+                    <textarea id="jobDesc" placeholder="Describe the work to be done..." required></textarea>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 2: Personnel & Responsibilities -->
+        <fieldset>
+            <legend>2. Personnel & Responsibilities</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Issuing Authority (IA) *</label>
+                    <input type="text" id="ia" placeholder="Name of Issuing Authority" required>
+                </div>
+                <div class="form-group">
+                    <label>Performing Authority (PA) *</label>
+                    <input type="text" id="pa" placeholder="Name of Supervisor/Foreman" required>
+                </div>
+                <div class="form-group">
+                    <label>Area Authority (AA) *</label>
+                    <input type="text" id="aa" placeholder="Name of Area Authority" required>
+                </div>
+                <div class="form-group">
+                    <label>Gas Tester (if applicable)</label>
+                    <input type="text" id="gasTester" placeholder="Name of Gas Tester">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 3: Hazard & Control Measures -->
+        <fieldset>
+            <legend>3. Hazard Identification & Control Measures</legend>
+            <div class="form-group full-width" style="margin-bottom: 10px;">
+                <label>Identified Hazards</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="Flammable Atmosphere"> Flammable Atmosphere</label>
+                    <label><input type="checkbox" value="Toxic Gas"> Toxic Gas (H2S/CO)</label>
+                    <label><input type="checkbox" value="Falling from Height"> Falling from Height</label>
+                    <label><input type="checkbox" value="Electrical Shock"> Electrical Shock</label>
+                    <label><input type="checkbox" value="Pinch/Crush"> Pinch / Crush Points</label>
+                    <label><input type="checkbox" value="Falling Objects"> Falling Objects</label>
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label>Control Measures / Perlengkapan K3 Required</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="Safety Helmet"> Safety Helmet</label>
+                    <label><input type="checkbox" value="Safety Shoes"> Safety Shoes</label>
+                    <label><input type="checkbox" value="Safety Glasses"> Safety Glasses</label>
+                    <label><input type="checkbox" value="Gloves"> Gloves</label>
+                    <label><input type="checkbox" value="Full Body Harness"> Full Body Harness</label>
+                    <label><input type="checkbox" value="Gas Detector"> Personal Gas Detector</label>
+                    <label><input type="checkbox" value="Fire Extinguisher"> Fire Extinguisher</label>
+                    <label><input type="checkbox" value="LOTO"> LOTO Equipment</label>
+                </div>
+            </div>
+            <div class="form-group full-width" style="margin-top: 10px;">
+                <label>JSA / JSA Reference Number</label>
+                <input type="text" id="jsaRef" placeholder="e.g., JSA-2026-045">
+            </div>
+        </fieldset>
+
+        <!-- Section 4: Isolation / LOTO (BARU) -->
+        <fieldset style="border-color: var(--primary-orange);">
+            <legend style="color: var(--primary-orange);">4. Isolation / LOTO (Lock Out Tag Out)</legend>
+            <div class="form-group full-width" style="margin-bottom: 15px;">
+                <label>Type of Isolation Applied</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="Electrical Isolation"> Electrical Isolation</label>
+                    <label><input type="checkbox" value="Mechanical Isolation"> Mechanical Isolation</label>
+                    <label><input type="checkbox" value="Process Isolation"> Process Isolation</label>
+                    <label><input type="checkbox" value="Pneumatic Isolation"> Pneumatic Isolation</label>
+                    <label><input type="checkbox" value="Hydraulic Isolation"> Hydraulic Isolation</label>
+                    <label><input type="checkbox" value="Line Breaking / Flushing"> Line Breaking / Flushing</label>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Lock Number</label>
+                    <input type="text" id="lockNo" placeholder="e.g., LOCK-045, LOCK-046">
+                </div>
+                <div class="form-group">
+                    <label>Tag Number</label>
+                    <input type="text" id="tagNo" placeholder="e.g., TAG-045">
+                </div>
+                <div class="form-group full-width">
+                    <label>Isolation Point Description</label>
+                    <textarea id="isolationDesc" placeholder="e.g., Isolasi valve V-102 di line 4, isolasi panel MCC-2 breaker #5..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label><input type="checkbox" id="lotoVerified"> Saya menyatakan isolasi telah diverifikasi dan dipasang LOTO dengan benar.</label>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 5: Gas Test Record (Dinamis) -->
+        <fieldset id="gasTestSection" style="display: none; border-color: var(--primary-orange);">
+            <legend style="color: var(--primary-orange);">5. Gas Test Record</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Time of Test</label>
+                    <input type="time" id="gasTime">
+                </div>
+                <div class="form-group">
+                    <label>Oxygen (O2) %</label>
+                    <input type="text" id="gasO2" placeholder="e.g., 20.9%">
+                </div>
+                <div class="form-group">
+                    <label>Lower Explosive Limit (LEL) %</label>
+                    <input type="text" id="gasLEL" placeholder="e.g., 0%">
+                </div>
+                <div class="form-group">
+                    <label>H2S (ppm)</label>
+                    <input type="text" id="gasH2S" placeholder="e.g., 0 ppm">
+                </div>
+                <div class="form-group">
+                    <label>CO (ppm)</label>
+                    <input type="text" id="gasCO" placeholder="e.g., 0 ppm">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 6: Approval & E-Signatures -->
+        <fieldset>
+            <legend>6. Approval & Signatures</legend>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                By signing below, I confirm that I have reviewed the hazards, control measures, and authorize this work.
+                <em>(Draw signature using mouse or finger)</em>
+            </p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Issuing Authority (IA) - Name</label>
+                    <input type="text" id="iaNameSign" placeholder="Type full name" required>
+                    <label style="margin-top: 8px;">IA Signature</label>
+                    <div class="signature-pad-container">
+                        <canvas id="sigIA" class="signature-pad"></canvas>
+                        <span class="signature-placeholder">Sign here (IA)</span>
+                        <button type="button" class="signature-clear-btn" onclick="clearSignature('sigIA')">Clear</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Performing Authority (PA) - Name</label>
+                    <input type="text" id="paNameSign" placeholder="Type full name" required>
+                    <label style="margin-top: 8px;">PA Signature</label>
+                    <div class="signature-pad-container">
+                        <canvas id="sigPA" class="signature-pad"></canvas>
+                        <span class="signature-placeholder">Sign here (PA)</span>
+                        <button type="button" class="signature-clear-btn" onclick="clearSignature('sigPA')">Clear</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Area Authority (AA) - Name</label>
+                    <input type="text" id="aaNameSign" placeholder="Type full name" required>
+                    <label style="margin-top: 8px;">AA Signature</label>
+                    <div class="signature-pad-container">
+                        <canvas id="sigAA" class="signature-pad"></canvas>
+                        <span class="signature-placeholder">Sign here (AA)</span>
+                        <button type="button" class="signature-clear-btn" onclick="clearSignature('sigAA')">Clear</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date & Time of Approval</label>
+                    <input type="datetime-local" id="signDate">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 7: Permit Closure Checklist (BARU) -->
+        <fieldset id="closureSection" style="border-color: var(--success-green); background: #f0fff4;">
+            <legend style="color: var(--success-green);">7. Permit Closure Checklist</legend>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                <strong>Hanya diisi setelah pekerjaan selesai.</strong> Semua item di bawah harus dicentang sebelum permit dapat ditutup.
+            </p>
+            <div class="form-group full-width">
+                <div class="checkbox-group" style="flex-direction: column; gap: 8px;">
+                    <label><input type="checkbox" class="closure-check" value="Work completed as per scope"> Pekerjaan telah selesai sesuai lingkup kerja</label>
+                    <label><input type="checkbox" class="closure-check" value="Area cleaned and housekeeping done"> Area telah dibersihkan dan *housekeeping* dilakukan</label>
+                    <label><input type="checkbox" class="closure-check" value="All tools and equipment removed"> Semua alat dan perlengkapan telah dipindahkan</label>
+                    <label><input type="checkbox" class="closure-check" value="LOTO removed and energy restored"> LOTO telah dilepas dan energi dikembalikan</label>
+                    <label><input type="checkbox" class="closure-check" value="Barriers and signs removed"> *Barrier* dan rambu-rambu telah dilepas</label>
+                    <label><input type="checkbox" class="closure-check" value="Area handed back to Area Authority"> Area telah diserahkan kembali ke *Area Authority*</label>
+                    <label><input type="checkbox" class="closure-check" value="No residual hazards remain"> Tidak ada bahaya sisa yang tertinggal</label>
+                </div>
+            </div>
+            <div class="form-grid" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label>Closed By (Name)</label>
+                    <input type="text" id="closedBy" placeholder="Name of person closing">
+                </div>
+                <div class="form-group">
+                    <label>Closure Date & Time</label>
+                    <input type="datetime-local" id="closureDate">
+                </div>
+            </div>
+            <div style="margin-top: 10px; text-align: right;">
+                <button type="button" class="btn-close-permit" onclick="closePermit()">
+                    <i class="fas fa-check-circle"></i> Close Permit
+                </button>
+            </div>
+        </fieldset>
+    </form>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button type="button" class="btn-excel" onclick="exportToExcel()">
+            <i class="fas fa-file-excel"></i> Export to Excel (CSV)
+        </button>
+        <button type="button" class="btn-pdf" onclick="exportToPDF()">
+            <i class="fas fa-file-pdf"></i> Export to PDF
+        </button>
+    </div>
+
+    <!-- Footer CS77 -->
+    <footer class="social-footer-container">
+      <div class="social-footer-bar">
+        <a href="https://www.linkedin.com/in/yudi-dwiranto-cs77" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
+          <i class="fab fa-linkedin-in"></i><span class="tooltip">LinkedIn</span>
+        </a>
+        <a href="https://web.facebook.com/ydwiranto" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i><span class="tooltip">Facebook</span>
+        </a>
+        <a href="https://www.instagram.com/yudi_cah_sragen_77/" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+          <i class="fab fa-instagram"></i><span class="tooltip">Instagram</span>
+        </a>
+        <a href="https://wa.me/6281389188903" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i><span class="tooltip">WhatsApp</span>
+        </a>
+        <a href="https://id.shp.ee/yudmwbm1" target="_blank" rel="noopener noreferrer" class="social-icon shopee" aria-label="Shopee">
+          <i class="fas fa-shopping-bag"></i><span class="tooltip">Shopee</span>
+        </a>
+        <a href="https://www.tiktok.com/@selarasdirumah" target="_blank" rel="noopener noreferrer" class="social-icon tiktok" aria-label="TikTok">
+          <i class="fab fa-tiktok"></i><span class="tooltip">TikTok</span>
+        </a>
+      </div>
+      <div class="footer-credits">
+        Handcrafted with ❤️ by <strong>Andrew Dwiranto</strong> (Cah_Sragen_77, Indonesia)
+        <div class="mt-1.5">© 2026 Hak Cipta Dilindungi Undang-Undang</div>
+      </div>
+    </footer>
+</div>
+
+<script>
+    // =========================================================
+    // 1. LOGIKA DINAMIS: Gas Test Section
+    // =========================================================
+    document.getElementById('permitType').addEventListener('change', function() {
+        var gasSection = document.getElementById('gasTestSection');
+        if (this.value === 'Hot Work' || this.value === 'Confined Space') {
+            gasSection.style.display = 'block';
+        } else {
+            gasSection.style.display = 'none';
+        }
+    });
+
+    // =========================================================
+    // 2. E-SIGNATURE PAD
+    // =========================================================
+    const signaturePads = {};
+
+    function initSignaturePad(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let lastX = 0, lastY = 0;
+
+        // Resize canvas sesuai ukuran CSS (fix untuk retina display)
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * ratio;
+            canvas.height = rect.height * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#000';
+        }
+
+        // Set posisi mouse/touch relatif terhadap canvas
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            lastX = pos.x;
+            lastY = pos.y;
+            // Sembunyikan placeholder
+            const placeholder = canvas.parentElement.querySelector('.signature-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+        function stopDrawing(e) {
+            if (drawing) {
+                e.preventDefault();
+                drawing = false;
+            }
+        }
+
+        // Event listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Initial resize
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            // Simpan data, resize, restore
+            const data = canvas.toDataURL();
+            resizeCanvas();
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            img.src = data;
+        });
+
+        signaturePads[canvasId] = { canvas, ctx };
+    }
+
+    // Clear signature
+    function clearSignature(canvasId) {
+        const pad = signaturePads[canvasId];
+        if (pad) {
+            pad.ctx.clearRect(0, 0, pad.canvas.width, pad.canvas.height);
+            const placeholder = pad.canvas.parentElement.querySelector('.signature-placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+        }
+    }
+
+    // Cek apakah canvas kosong
+    function isCanvasEmpty(canvas) {
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        return canvas.toDataURL() === blank.toDataURL();
+    }
+
+    // Inisialisasi semua signature pads
+    window.addEventListener('load', function() {
+        initSignaturePad('sigIA');
+        initSignaturePad('sigPA');
+        initSignaturePad('sigAA');
+    });
+
+    // =========================================================
+    // 3. PERMIT CLOSURE CHECKLIST
+    // =========================================================
+    function closePermit() {
+        const checks = document.querySelectorAll('.closure-check');
+        let allChecked = true;
+        let checkedCount = 0;
+        
+        checks.forEach(c => {
+            if (c.checked) checkedCount++;
+            else allChecked = false;
+        });
+
+        if (checkedCount === 0) {
+            alert('⚠️ Silakan centang minimal satu item checklist penutupan.');
+            return;
+        }
+
+        if (!allChecked) {
+            if (!confirm('⚠️ Belum semua item checklist dicentang. Yakin ingin menutup permit?')) {
+                return;
+            }
+        }
+
+        const closedBy = document.getElementById('closedBy').value;
+        if (!closedBy) {
+            alert('⚠️ Mohon isi nama penanggung jawab penutupan permit (Closed By).');
+            return;
+        }
+
+        // Update status badge
+        const statusBadge = document.getElementById('permitStatus');
+        statusBadge.textContent = 'CLOSED';
+        statusBadge.className = 'status-badge status-closed';
+
+        // Set closure date otomatis jika kosong
+        const closureDate = document.getElementById('closureDate');
+        if (!closureDate.value) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            closureDate.value = now.toISOString().slice(0,16);
+        }
+
+        alert('✅ Permit berhasil ditutup pada ' + new Date().toLocaleString('id-ID'));
+    }
+
+    // =========================================================
+    // 4. EXPORT TO PDF (dengan gambar signature)
+    // =========================================================
+    function exportToPDF() {
+        // Validasi signature wajib diisi
+        const sigIA = document.getElementById('sigIA');
+        const sigPA = document.getElementById('sigPA');
+        const sigAA = document.getElementById('sigAA');
+
+        if (isCanvasEmpty(sigIA) || isCanvasEmpty(sigPA) || isCanvasEmpty(sigAA)) {
+            if (!confirm('⚠️ Ada tanda tangan yang masih kosong. Tetap lanjutkan export PDF?')) {
+                return;
+            }
+        }
+
+        // Karena window.print() sudah otomatis mencetak canvas yang sudah digambar,
+        // kita tidak perlu konversi manual. Cukup panggil print.
+        window.print();
+    }
+
+    // =========================================================
+    // 5. EXPORT TO EXCEL (CSV)
+    // =========================================================
+    function exportToExcel() {
+        var permitNo = document.getElementById('permitNo').value;
+        var permitType = document.getElementById('permitType').value;
+        var location = document.getElementById('location').value;
+        var jobDesc = document.getElementById('jobDesc').value.replace(/"/g, '""');
+        var ia = document.getElementById('ia').value;
+        var pa = document.getElementById('pa').value;
+        var aa = document.getElementById('aa').value;
+        var validFrom = document.getElementById('validFrom').value;
+        var validTo = document.getElementById('validTo').value;
+        var lockNo = document.getElementById('lockNo').value;
+        var tagNo = document.getElementById('tagNo').value;
+        var closedBy = document.getElementById('closedBy').value;
+        var status = document.getElementById('permitStatus').textContent;
+
+        // Ambil semua hazard & PPE yang dicentang
+        var hazards = [];
+        document.querySelectorAll('fieldset:nth-of-type(3) input[type="checkbox"]:checked').forEach(c => hazards.push(c.value));
+        
+        var csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Permit No,Permit Type,Location,Job Description,Issuing Authority,Performing Authority,Area Authority,Valid From,Valid To,Hazards,Lock No,Tag No,Closed By,Status\n";
+
+        var row = `"${permitNo}","${permitType}","${location}","${jobDesc}","${ia}","${pa}","${aa}","${validFrom}","${validTo}","${hazards.join('; ')}","${lockNo}","${tagNo}","${closedBy}","${status}"`;
+        csvContent += row + "\n";
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `PTW_Register_${permitNo}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // =========================================================
+    // 6. INIT: Set default dates
+    // =========================================================
+    window.addEventListener('load', function() {
+        var now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('validFrom').value = now.toISOString().slice(0,16);
+        
+        var tomorrow = new Date(now);
+        tomorrow.setHours(tomorrow.getHours() + 8);
+        document.getElementById('validTo').value = tomorrow.toISOString().slice(0,16);
+        
+        document.getElementById('signDate').value = now.toISOString().slice(0,16);
+    });
+</script>
+
+</body>
+</html>
