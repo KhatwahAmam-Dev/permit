@@ -11,6 +11,26 @@
             background: #f4f7f6;
             margin: 0; padding: 20px;
         }
+        .top-nav {
+            background: var(--primary-blue);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+        .top-nav .brand { font-weight: bold; font-size: 18px; }
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.15);
+            font-size: 14px;
+            margin-left: 10px;
+            transition: 0.3s;
+        }
+        .top-nav a:hover { background: rgba(255,255,255,0.3); }
         .verify-container {
             max-width: 600px;
             margin: 0 auto;
@@ -61,7 +81,13 @@
     </style>
 </head>
 <body>
-    <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard Register</a>
+    <div class="top-nav">
+    <div class="brand"><i class="fas fa-hard-hat"></i> CS77 Permit to Work</div>
+    <div>
+        <a href="index.html"><i class="fas fa-file-alt"></i> Form Permit</a>
+        <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard Register</a>
+    </div>
+</div>
     <div class="verify-container">
         <div class="verify-header">
             <i class="fas fa-shield-alt" style="font-size: 40px; margin-bottom: 10px;"></i>
