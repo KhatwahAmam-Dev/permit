@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS77 - Dokumentasi Pekerjaan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --dark-blue: #003d82;
+            --primary-orange: #ff6600;
+            --bg-light: #f4f7f6;
+            --text-dark: #333;
+            --border-color: #ccc;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --warning-yellow: #ffc107;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .top-nav {
+            background: var(--primary-blue);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-nav .brand { font-weight: bold; font-size: 18px; }
+        .top-nav .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.15);
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .top-nav a:hover, .top-nav a.active { background: var(--primary-orange); }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        /* Header */
+        .header-doc {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-doc .title-area h1 {
+            color: var(--primary-blue);
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .header-doc .title-area p {
+            font-size: 13px;
+            color: #666;
+        }
+        .timestamp-live {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            min-width: 200px;
+        }
+        .timestamp-live .time {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 3px;
+        }
+        .timestamp-live .date {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .timestamp-live .tz {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        /* Section */
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        legend {
+            font-weight: bold;
+            color: var(--primary-blue);
+            padding: 0 10px;
+            font-size: 15px;
+        }
+        legend i { color: var(--primary-orange); margin-right: 5px; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: span 2; }
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #555;
+        }
+        input[type="text"], input[type="number"], select, textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .readonly-field {
+            background: #e9ecef;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Location Box */
+        .location-box {
+            background: linear-gradient(135deg, #e7f3ff, #f0f8ff);
+            border: 2px dashed var(--primary-blue);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .location-status .status-icon {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #fff;
+        }
+        .location-status .status-icon.idle { background: #999; }
+        .location-status .status-icon.loading { background: var(--primary-orange); animation: pulse 1s infinite; }
+        .location-status .status-icon.success { background: var(--success-green); }
+        .location-status .status-icon.error { background: var(--danger-red); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .coord-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .coord-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-orange);
+        }
+        .coord-item .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .coord-item .value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-location {
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-location:hover { background: var(--dark-blue); }
+        .btn-location:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-location.gmaps {
+            background: #34a853;
+            margin-left: 8px;
+        }
+        .btn-location.gmaps:hover { background: #2a8544; }
+
+        /* Photo Section */
+        .photo-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .btn-photo {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border: 2px dashed var(--primary-blue);
+            background: #f0f8ff;
+            color: var(--primary-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-photo i { font-size: 22px; }
+        .btn-photo:hover {
+            background: var(--primary-blue);
+            color: #fff;
+            border-color: var(--primary-blue);
+        }
+        .btn-photo input[type="file"] { display: none; }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .photo-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+        .photo-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .photo-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            background: #f0f0f0;
+        }
+        .photo-card .photo-info {
+            padding: 10px;
+            font-size: 11px;
+        }
+        .photo-card .photo-info .photo-time {
+            color: var(--primary-blue);
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .photo-card .photo-info .photo-label {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .photo-card .photo-info input {
+            width: 100%;
+            padding: 5px 8px;
+            font-size: 11px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .photo-card .btn-remove {
+            background: var(--danger-red);
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            width: 100%;
+        }
+        .photo-card .btn-remove:hover { background: #c82333; }
+
+        .photo-counter {
+            background: var(--primary-orange);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .photo-warning {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning-yellow);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        /* Signature Pad */
+        .signature-pad-container {
+            position: relative;
+            border: 2px dashed var(--primary-blue);
+            border-radius: 5px;
+            background: #fafafa;
+            width: 100%;
+            height: 180px;
+        }
+        canvas.signature-pad {
+            position: absolute;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            border-radius: 5px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .signature-clear-btn {
+            position: absolute;
+            top: 5px; right: 5px;
+            background: var(--danger-red);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            z-index: 10;
+        }
+        .signature-placeholder {
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            color: #aaa;
+            font-size: 13px;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button.btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-save { background: var(--primary-blue); }
+        .btn-save:hover { background: var(--dark-blue); }
+        .btn-pdf { background: var(--danger-red); }
+        .btn-pdf:hover { background: #c82333; }
+        .btn-json { background: var(--primary-orange); }
+        .btn-json:hover { background: #e65c00; }
+        .btn-reset { background: #6c757d; }
+        .btn-reset:hover { background: #5a6268; }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .lightbox .close-btn {
+            position: absolute;
+            top: 20px; right: 30px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* Footer CS77 */
+        .social-footer-container {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary-blue);
+            text-align: center;
+        }
+        .social-footer-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .social-icon {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            color: #fff;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .social-icon:hover { transform: translateY(-3px); }
+        .linkedin { background: #0077b5; }
+        .facebook { background: #1877f2; }
+        .instagram { background: #e4405f; }
+        .whatsapp { background: #25d366; }
+        .shopee { background: #ee4d2d; }
+        .tiktok { background: #000000; }
+        .footer-credits { font-size: 13px; color: #555; }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .container { padding: 20px; margin: 10px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .coord-grid { grid-template-columns: 1fr; }
+            .timestamp-live { width: 100%; }
+            .header-doc { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* Print */
+        @media print {
+            body { background: #fff; }
+            .top-nav, .action-buttons, .social-footer-bar, .btn-location, .btn-photo, .btn-remove, .signature-clear-btn { display: none !important; }
+            .container { box-shadow: none; margin: 0; padding: 15px; max-width: 100%; }
+            fieldset { border: 1px solid #000; page-break-inside: avoid; }
+            .photo-gallery { grid-template-columns: repeat(2, 1fr); }
+            .photo-card img { height: 200px; }
+            .photo-card .photo-info input { border: none; }
+            .photo-warning { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<div class="top-nav">
+    <div class="brand"><i class="fas fa-hard-hat"></i> CS77 Permit to Work</div>
+    <div class="nav-links">
+        <a href="index.html"><i class="fas fa-file-alt"></i> Form Permit</a>
+        <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="dokumentasi.html" class="active"><i class="fas fa-camera"></i> Dokumentasi</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="header-doc">
+        <div class="title-area">
+            <h1><i class="fas fa-camera"></i> DOKUMENTASI PEKERJAAN</h1>
+            <p>CS77 Standard - Field Documentation Report</p>
+        </div>
+        <div class="timestamp-live">
+            <div class="time" id="liveTime">--:--:--</div>
+            <div class="date" id="liveDate">Memuat...</div>
+            <div class="tz" id="liveTz">Zona waktu</div>
+        </div>
+    </div>
+
+    <form id="docForm">
+
+        <!-- SECTION 1: INFORMASI DASAR -->
+        <fieldset>
+            <legend><i class="fas fa-info-circle"></i> 1. Informasi Dasar</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Documentation ID (Auto)</label>
+                    <input type="text" id="docId" class="readonly-field" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Permit No (Referensi)</label>
+                    <input type="text" id="permitRef" placeholder="e.g., CS77-PTW-20261011-001">
+                </div>
+                <div class="form-group">
+                    <label>Nama Penanggung Jawab *</label>
+                    <input type="text" id="namaPIC" placeholder="Nama lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label>Role / Jabatan *</label>
+                    <select id="rolePIC" required>
+                        <option value="">-- Pilih Role --</option>
+                        <option value="Pengawas Lapangan">Pengawas Lapangan</option>
+                        <option value="Performing Authority (PA)">Performing Authority (PA)</option>
+                        <option value="Issuing Authority (IA)">Issuing Authority (IA)</option>
+                        <option value="Area Authority (AA)">Area Authority (AA)</option>
+                        <option value="HSE Officer">HSE Officer</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Worker">Worker</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Jenis Pekerjaan (Mengacu ke Permit) *</label>
+                    <select id="jenisPekerjaan" required>
+                        <option value="">-- Pilih Jenis Pekerjaan --</option>
+                        <option value="Hot Work">Hot Work (Pengelasan, Gerinda, Cutting)</option>
+                        <option value="Confined Space Entry">Confined Space Entry</option>
+                        <option value="Work at Height">Work at Height (Ketinggian)</option>
+                        <option value="Electrical Work">Electrical Work</option>
+                        <option value="Excavation">Excavation (Penggalian)</option>
+                        <option value="Lifting Operation">Lifting Operation (Pengangkatan)</option>
+                        <option value="Line Breaking">Line Breaking / Flushing</option>
+                        <option value="Mechanical Work">Mechanical Work</option>
+                        <option value="General / Cold Work">General / Cold Work</option>
+                        <option value="Other">Other (sebutkan di keterangan)</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- SECTION 2: LOKASI -->
+        <fieldset>
+            <legend><i class="fas fa-map-marker-alt"></i> 2. Lokasi (GPS & Google Maps)</legend>
+
+            <div class="location-box">
+                <div class="location-status">
+                    <div class="status-icon idle" id="locStatusIcon"><i class="fas fa-map-pin"></i></div>
+                    <div>
+                        <strong id="locStatusText">Lokasi belum diambil</strong><br>
+                        <span style="font-size: 12px; color: #666;">Klik tombol di bawah untuk mengambil koordinat GPS secara otomatis.</span>
+                    </div>
+                </div>
+
+                <div class="coord-grid">
+                    <div class="coord-item">
+                        <div class="label">Latitude</div>
+                        <div class="value" id="latValue">-</div>
+                    </div>
+                    <div class="coord-item">
+                        <div class="label">Longitude</div>
+                        <div class="value" id="lngValue">-</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button type="button" class="btn-location" id="btnGetLocation" onclick="getLocation()">
+                        <i class="fas fa-crosshairs"></i> Ambil Koordinat GPS
+                    </button>
+                    <button type="button" class="btn-location gmaps" id="btnOpenMaps" onclick="openGoogleMaps()" disabled>
+                        <i class="fas fa-external-link-alt"></i> Buka di Google Maps
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 15px;">
+                <div class="form-group full-width">
+                    <label>Nama Lokasi (Auto dari GPS / Manual)</label>
+                    <input type="text" id="namaLokasi" placeholder="Contoh: Area 4, Compressor Room, Level 2">
+                </div>
+                <div class="form-group">
+                    <label>Akurasi GPS (meter)</label>
+                    <input type="text" id="akurasiGps" class="readonly-field" readonly placeholder="-">
+                </div>
+                <div class="form-group">
+                    <label>Waktu Pengambilan GPS</label>
+                    <input type="text" id="waktuGps" class="readonly-field" readonly placeholder="-">
+                </div>
+                <div class="form-group full-width">
+                    <label>Detail Lokasi Tambahan</label>
+                    <input type="text" id="detailLokasi" placeholder="Contoh: Dekat panel MCC-2, sisi timur gedung">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- SECTION 3: DESKRIPSI KERJA -->
+        <fieldset>
+            <legend><i class="fas fa-tasks"></i> 3. Deskripsi Pekerjaan</legend>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Deskripsi Singkat Pekerjaan *</label>
+                    <textarea id="deskripsiKerja" placeholder="Jelaskan pekerjaan yang sedang dilakukan..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Kondisi Cuaca</label>
+                    <select id="cuaca">
+                        <option value="">-- Pilih --</option>
+                        <option value="Cerah">Cerah</option>
+                        <option value="Berawan">Berawan</option>
+                        <option value="Hujan Ringan">Hujan Ringan</option>
+                        <option value="Hujan Lebat">Hujan Lebat</option>
+                        <option value="Berkabut">Berkabut</option>
+                        <option value="Malam Hari">Malam Hari</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Pekerja Terlibat</label>
+                    <input type="number" id="jumlahPekerja" min="0" placeholder="Contoh: 5">
+                </div>
+                <div class="form-group full-width">
+                    <label>Progress Pekerjaan (%)</label>
+                    <select id="progress">
+                        <option value="">-- Pilih --</option>
+                        <option value="0-25%">0-25% (Baru Mulai)</option>
+                        <option value="26-50%">26-50% (Setengah Jalan)</option>
+                        <option value="51-75%">51-75% (Hampir Selesai)</option>
+                        <option value="76-99%">76-99% (Finishing)</option>
+                        <option value="100%">100% (Selesai)</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- SECTION 4: DOKUMENTASI FOTO -->
+        <fieldset>
+            <legend><i class="fas fa-images"></i> 4. Dokumentasi Foto</legend>
+
+            <div class="photo-warning">
+                <i class="fas fa-info-circle"></i> <strong>Tips Foto Berkualitas:</strong> Ambil foto dengan pencahayaan cukup, fokus pada objek, dan pastikan resolusi tinggi. Foto disimpan otomatis dengan timestamp.
+            </div>
+
+            <div class="photo-counter" id="photoCounter">
+                <i class="fas fa-camera"></i> 0 / 5 Foto
+            </div>
+
+            <div class="photo-actions">
+                <label class="btn-photo">
+                    <i class="fas fa-camera"></i>
+                    <span>Ambil Foto (Kamera HP)</span>
+                    <input type="file" accept="image/*" capture="environment" id="inputCamera" onchange="handlePhoto(event)">
+                </label>
+                <label class="btn-photo">
+                    <i class="fas fa-image"></i>
+                    <span>Upload dari Galeri</span>
+                    <input type="file" accept="image/*" id="inputGallery" onchange="handlePhoto(event)">
+                </label>
+            </div>
+
+            <div class="photo-gallery" id="photoGallery">
+                <!-- Foto akan muncul di sini -->
+            </div>
+        </fieldset>
+
+        <!-- SECTION 5: CATATAN MANUAL -->
+        <fieldset style="border-color: var(--warning-yellow);">
+            <legend style="color: #856404;"><i class="fas fa-exclamation-triangle" style="color: var(--warning-yellow);"></i> 5. Catatan Manual (Kondisi di Luar Prosedur)</legend>
+
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                Isi kolom ini jika terjadi sesuatu <strong>di luar kondisi yang seharusnya</strong> — misal: kondisi tidak aman, perubahan mendadak, kejadian tak terduga, atau temuan lain di lapangan.
+            </p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tingkat Severity</label>
+                    <select id="severity">
+                        <option value="Info">ℹ️ Info (Catatan Biasa)</option>
+                        <option value="Warning">⚠️ Warning (Perlu Perhatian)</option>
+                        <option value="Critical">🚨 Critical (Bahaya / Perlu Tindakan Segera)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kategori Temuan</label>
+                    <select id="kategoriTemuan">
+                        <option value="">-- Pilih --</option>
+                        <option value="Unsafe Condition">Unsafe Condition (Kondisi Tidak Aman)</option>
+                        <option value="Unsafe Act">Unsafe Act (Tindakan Tidak Aman)</option>
+                        <option value="Near Miss">Near Miss (Hampir Celaka)</option>
+                        <option value="Equipment Issue">Equipment Issue (Masalah Peralatan)</option>
+                        <option value="Procedure Deviation">Procedure Deviation (Penyimpangan Prosedur)</option>
+                        <option value="Environmental">Environmental (Lingkungan)</option>
+                        <option value="Other">Other (Lainnya)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Deskripsi Catatan *</label>
+                    <textarea id="catatanManual" placeholder="Jelaskan kondisi di luar prosedur yang terjadi di lapangan..." style="min-height: 100px;"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>Tindakan yang Diambil</label>
+                    <textarea id="tindakanDiambil" placeholder="Tindakan apa yang sudah dilakukan untuk mengatasi kondisi tersebut..."></textarea>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- SECTION 6: TANDA TANGAN -->
+        <fieldset>
+            <legend><i class="fas fa-signature"></i> 6. Tanda Tangan Penanggung Jawab</legend>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                Tanda tangan digital ini menyatakan bahwa dokumentasi di atas benar dan sesuai kondisi lapangan.
+            </p>
+            <div class="signature-pad-container">
+                <canvas id="sigDoc" class="signature-pad"></canvas>
+                <span class="signature-placeholder">Tanda tangan di sini (pakai mouse atau jari)</span>
+                <button type="button" class="signature-clear-btn" onclick="clearSignature()">Clear</button>
+            </div>
+        </fieldset>
+
+    </form>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+        <button type="button" class="btn btn-reset" onclick="resetForm()">
+            <i class="fas fa-redo"></i> Reset
+        </button>
+        <button type="button" class="btn btn-json" onclick="exportJSON()">
+            <i class="fas fa-file-code"></i> Export JSON
+        </button>
+        <button type="button" class="btn btn-pdf" onclick="exportPDF()">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+        <button type="button" class="btn btn-save" onclick="saveDoc()">
+            <i class="fas fa-save"></i> Save Documentation
+        </button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="social-footer-container">
+        <div class="social-footer-bar">
+            <a href="https://www.linkedin.com/in/yudi-dwiranto-cs77" target="_blank" class="social-icon linkedin"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://web.facebook.com/ydwiranto" target="_blank" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/yudi_cah_sragen_77/" target="_blank" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/6281389188903" target="_blank" class="social-icon whatsapp"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://id.shp.ee/yudmwbm1" target="_blank" class="social-icon shopee"><i class="fas fa-shopping-bag"></i></a>
+            <a href="https://www.tiktok.com/@selarasdirumah" target="_blank" class="social-icon tiktok"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <div class="footer-credits">
+            Handcrafted with ❤️ by <strong>Andrew Dwiranto</strong> (Cah_Sragen_77, Indonesia)<br>
+            <span style="font-size: 11px;">© 2026 - Hak Cipta Dilindungi Undang-Undang</span>
+        </div>
+    </footer>
+
+</div>
+
+<!-- Lightbox untuk preview foto -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="close-btn" onclick="closeLightbox()">&times;</button>
+    <img id="lightboxImg" src="" alt="Preview">
+</div>
+
+<script>
+    // =========================================================
+    // 1. TIMESTAMP LIVE (Update setiap detik)
+    // =========================================================
+    function updateLiveTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+        const dateStr = now.toLocaleDateString('id-ID', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        const tzStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        document.getElementById('liveTime').textContent = timeStr;
+        document.getElementById('liveDate').textContent = dateStr;
+        document.getElementById('liveTz').textContent = `Zona: ${tzStr} (UTC${getTimezoneOffset()})`;
+    }
+
+    function getTimezoneOffset() {
+        const offset = -new Date().getTimezoneOffset() / 60;
+        return offset >= 0 ? `+${offset}` : `${offset}`;
+    }
+
+    setInterval(updateLiveTime, 1000);
+
+    // =========================================================
+    // 2. AUTO-GENERATE DOCUMENTATION ID
+    // =========================================================
+    function generateDocId() {
+        let existingId = sessionStorage.getItem('cs77_current_doc_id');
+        if (existingId) return existingId;
+        
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mi = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        const newId = `CS77-DOC-${yyyy}${mm}${dd}-${hh}${mi}${ss}`;
+        
+        sessionStorage.setItem('cs77_current_doc_id', newId);
+        return newId;
+    }
+
+    // =========================================================
+    // 3. GPS LOCATION (Geolocation API + Nominatim OSM)
+    // =========================================================
+    function getLocation() {
+        const btn = document.getElementById('btnGetLocation');
+        const statusIcon = document.getElementById('locStatusIcon');
+        const statusText = document.getElementById('locStatusText');
+        
+        if (!navigator.geolocation) {
+            alert('⚠️ Browser Anda tidak mendukung Geolocation.');
+            return;
+        }
+        
+        btn.disabled = true;
+        statusIcon.className = 'status-icon loading';
+        statusIcon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        statusText.textContent = 'Mengambil koordinat GPS...';
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const acc = position.coords.accuracy;
+                
+                document.getElementById('latValue').textContent = lat.toFixed(6);
+                document.getElementById('lngValue').textContent = lng.toFixed(6);
+                document.getElementById('akurasiGps').value = `± ${acc.toFixed(1)} meter`;
+                
+                const now = new Date();
+                document.getElementById('waktuGps').value = now.toLocaleString('id-ID', { hour12: false });
+                
+                statusIcon.className = 'status-icon success';
+                statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                statusText.textContent = 'Koordinat GPS berhasil diambil';
+                
+                document.getElementById('btnOpenMaps').disabled = false;
+                
+                // Reverse Geocoding dengan Nominatim (OpenStreetMap)
+                statusText.textContent = 'Mengambil nama lokasi dari peta...';
+                try {
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+                        { headers: { 'Accept-Language': 'id,en' } }
+                    );
+                    const data = await response.json();
+                    
+                    if (data && data.display_name) {
+                        document.getElementById('namaLokasi').value = data.display_name;
+                        statusText.textContent = 'Lokasi berhasil dideteksi dari peta';
+                    } else {
+                        statusText.textContent = 'Koordinat OK. Isi nama lokasi manual.';
+                    }
+                } catch (err) {
+                    console.warn('Reverse geocoding gagal:', err);
+                    statusText.textContent = 'Koordinat OK. Isi nama lokasi manual.';
+                }
+                
+                btn.disabled = false;
+            },
+            (error) => {
+                let msg = 'Gagal mengambil lokasi.';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        msg = 'Izin lokasi ditolak. Mohon izinkan akses GPS.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msg = 'Informasi lokasi tidak tersedia.';
+                        break;
+                    case error.TIMEOUT:
+                        msg = 'Waktu pengambilan lokasi habis.';
+                        break;
+                }
+                
+                statusIcon.className = 'status-icon error';
+                statusIcon.innerHTML = '<i class="fas fa-times"></i>';
+                statusText.textContent = msg;
+                btn.disabled = false;
+                alert('⚠️ ' + msg);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    function openGoogleMaps() {
+        const lat = document.getElementById('latValue').textContent;
+        const lng = document.getElementById('lngValue').textContent;
+        if (lat === '-' || lng === '-') {
+            alert('⚠️ Ambil koordinat GPS terlebih dahulu.');
+            return;
+        }
+        window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+    }
+
+    // =========================================================
+    // 4. FOTO HANDLING (High Quality via Native Camera)
+    // =========================================================
+    const MAX_PHOTOS = 5;
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB per foto
+    let photos = []; // Array of { id, dataUrl, timestamp, label }
+
+    function handlePhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        // Cek jumlah foto
+        if (photos.length >= MAX_PHOTOS) {
+            alert(`⚠️ Maksimal ${MAX_PHOTOS} foto. Hapus salah satu untuk menambah.`);
+            event.target.value = '';
+            return;
+        }
+        
+        // Cek ukuran
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`⚠️ Ukuran foto terlalu besar (${(file.size/1024/1024).toFixed(2)} MB). Maksimal 2 MB.\n\nTips: Aktifkan mode "Hemat Penyimpanan" atau kompres foto terlebih dahulu.`);
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const now = new Date();
+            const photoObj = {
+                id: 'photo_' + Date.now(),
+                dataUrl: e.target.result,
+                timestamp: now.toLocaleString('id-ID', { hour12: false }),
+                label: ''
+            };
+            photos.push(photoObj);
+            renderPhotos();
+            event.target.value = ''; // Reset input
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function renderPhotos() {
+        const gallery = document.getElementById('photoGallery');
+        const counter = document.getElementById('photoCounter');
+        
+        counter.innerHTML = `<i class="fas fa-camera"></i> ${photos.length} / ${MAX_PHOTOS} Foto`;
+        
+        if (photos.length === 0) {
+            gallery.innerHTML = '<p style="text-align: center; color: #999; font-size: 13px; padding: 20px;">Belum ada foto. Klik tombol di atas untuk mengambil foto.</p>';
+            return;
+        }
+        
+        gallery.innerHTML = photos.map((p, i) => `
+            <div class="photo-card">
+                <img src="${p.dataUrl}" alt="Foto ${i+1}" onclick="openLightbox('${p.id}')">
+                <div class="photo-info">
+                    <div class="photo-time"><i class="fas fa-clock"></i> ${p.timestamp}</div>
+                    <div class="photo-label">Foto #${i+1}</div>
+                    <input type="text" placeholder="Keterangan foto..." value="${p.label}" oninput="updatePhotoLabel('${p.id}', this.value)">
+                    <button class="btn-remove" onclick="removePhoto('${p.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updatePhotoLabel(id, value) {
+        const photo = photos.find(p => p.id === id);
+        if (photo) photo.label = value;
+    }
+
+    function removePhoto(id) {
+        if (!confirm('Hapus foto ini?')) return;
+        photos = photos.filter(p => p.id !== id);
+        renderPhotos();
+    }
+
+    function openLightbox(id) {
+        const photo = photos.find(p => p.id === id);
+        if (!photo) return;
+        document.getElementById('lightboxImg').src = photo.dataUrl;
+        document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+
+    // =========================================================
+    // 5. SIGNATURE PAD
+    // =========================================================
+    let signaturePad = null;
+
+    function initSignaturePad() {
+        const canvas = document.getElementById('sigDoc');
+        const ctx = canvas.getContext('2d');
+        let drawing = false, lastX = 0, lastY = 0;
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * ratio;
+            canvas.height = rect.height * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#000';
+        }
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function start(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            lastX = pos.x; lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            lastX = pos.x; lastY = pos.y;
+            const ph = canvas.parentElement.querySelector('.signature-placeholder');
+            if (ph) ph.style.display = 'none';
+        }
+
+        function stop(e) {
+            if (drawing) { e.preventDefault(); drawing = false; }
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stop);
+        canvas.addEventListener('mouseout', stop);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stop);
+
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            const data = canvas.toDataURL();
+            resizeCanvas();
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            img.src = data;
+        });
+
+        signaturePad = { canvas, ctx };
+    }
+
+    function clearSignature() {
+        if (!signaturePad) return;
+        signaturePad.ctx.clearRect(0, 0, signaturePad.canvas.width, signaturePad.canvas.height);
+        const ph = signaturePad.canvas.parentElement.querySelector('.signature-placeholder');
+        if (ph) ph.style.display = 'block';
+    }
+
+    function isSignatureEmpty() {
+        if (!signaturePad) return true;
+        const blank = document.createElement('canvas');
+        blank.width = signaturePad.canvas.width;
+        blank.height = signaturePad.canvas.height;
+        return signaturePad.canvas.toDataURL() === blank.toDataURL();
+    }
+
+    // =========================================================
+    // 6. SAVE DOCUMENTATION (localStorage)
+    // =========================================================
+    function saveDoc() {
+        // Validasi
+        const required = ['namaPIC', 'rolePIC', 'jenisPekerjaan', 'deskripsiKerja'];
+        for (let id of required) {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) {
+                alert(`⚠️ Field "${el.previousElementSibling ? el.previousElementSibling.textContent.replace(' *','') : id}" wajib diisi.`);
+                el.focus();
+                return;
+            }
+        }
+
+        if (isSignatureEmpty()) {
+            if (!confirm('⚠️ Tanda tangan masih kosong. Tetap simpan?')) return;
+        }
+
+        const docData = {
+            docId: document.getElementById('docId').value,
+            permitRef: document.getElementById('permitRef').value,
+            namaPIC: document.getElementById('namaPIC').value,
+            rolePIC: document.getElementById('rolePIC').value,
+            jenisPekerjaan: document.getElementById('jenisPekerjaan').value,
+            
+            lat: document.getElementById('latValue').textContent,
+            lng: document.getElementById('lngValue').textContent,
+            akurasiGps: document.getElementById('akurasiGps').value,
+            waktuGps: document.getElementById('waktuGps').value,
+            namaLokasi: document.getElementById('namaLokasi').value,
+            detailLokasi: document.getElementById('detailLokasi').value,
+            
+            deskripsiKerja: document.getElementById('deskripsiKerja').value,
+            cuaca: document.getElementById('cuaca').value,
+            jumlahPekerja: document.getElementById('jumlahPekerja').value,
+            progress: document.getElementById('progress').value,
+            
+            photos: photos.map(p => ({
+                timestamp: p.timestamp,
+                label: p.label,
+                dataUrl: p.dataUrl
+            })),
+            
+            severity: document.getElementById('severity').value,
+            kategoriTemuan: document.getElementById('kategoriTemuan').value,
+            catatanManual: document.getElementById('catatanManual').value,
+            tindakanDiambil: document.getElementById('tindakanDiambil').value,
+            
+            signature: signaturePad ? signaturePad.canvas.toDataURL() : '',
+            
+            savedAt: new Date().toISOString()
+        };
+
+        // Simpan ke localStorage
+        const docs = JSON.parse(localStorage.getItem('cs77_documentations') || '[]');
+        
+        const existingIndex = docs.findIndex(d => d.docId === docData.docId);
+        if (existingIndex >= 0) {
+            docs[existingIndex] = docData;
+            alert('✅ Dokumentasi berhasil di-update!\n\nDoc ID: ' + docData.docId);
+        } else {
+            docs.push(docData);
+            alert('✅ Dokumentasi berhasil disimpan!\n\nDoc ID: ' + docData.docId + '\nFoto: ' + photos.length + ' buah');
+        }
+        
+        try {
+            localStorage.setItem('cs77_documentations', JSON.stringify(docs));
+            sessionStorage.removeItem('cs77_current_doc_id');
+        } catch (e) {
+            alert('⚠️ Penyimpanan penuh! Hapus beberapa dokumentasi lama atau kurangi foto.');
+            console.error(e);
+        }
+    }
+
+    // =========================================================
+    // 7. EXPORT PDF
+    // =========================================================
+    function exportPDF() {
+        if (isSignatureEmpty()) {
+            if (!confirm('⚠️ Tanda tangan masih kosong. Tetap export PDF?')) return;
+        }
+        window.print();
+    }
+
+    // =========================================================
+    // 8. EXPORT JSON (Backup)
+    // =========================================================
+    function exportJSON() {
+        const docData = {
+            docId: document.getElementById('docId').value,
+            permitRef: document.getElementById('permitRef').value,
+            namaPIC: document.getElementById('namaPIC').value,
+            rolePIC: document.getElementById('rolePIC').value,
+            jenisPekerjaan: document.getElementById('jenisPekerjaan').value,
+            lat: document.getElementById('latValue').textContent,
+            lng: document.getElementById('lngValue').textContent,
+            akurasiGps: document.getElementById('akurasiGps').value,
+            waktuGps: document.getElementById('waktuGps').value,
+            namaLokasi: document.getElementById('namaLokasi').value,
+            detailLokasi: document.getElementById('detailLokasi').value,
+            deskripsiKerja: document.getElementById('deskripsiKerja').value,
+            cuaca: document.getElementById('cuaca').value,
+            jumlahPekerja: document.getElementById('jumlahPekerja').value,
+            progress: document.getElementById('progress').value,
+            photos: photos,
+            severity: document.getElementById('severity').value,
+            kategoriTemuan: document.getElementById('kategoriTemuan').value,
+            catatanManual: document.getElementById('catatanManual').value,
+            tindakanDiambil: document.getElementById('tindakanDiambil').value,
+            signature: signaturePad ? signaturePad.canvas.toDataURL() : '',
+            exportedAt: new Date().toISOString()
+        };
+        
+        const jsonStr = JSON.stringify(docData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `CS77_DOC_${docData.docId}_${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        alert('✅ JSON berhasil di-export!\n\nFile ini berisi data lengkap termasuk foto (base64).');
+    }
+
+    // =========================================================
+    // 9. RESET FORM
+    // =========================================================
+    function resetForm() {
+        if (!confirm('⚠️ Reset semua isian form? Data yang belum disimpan akan hilang.')) return;
+        
+        document.getElementById('docForm').reset();
+        photos = [];
+        renderPhotos();
+        clearSignature();
+        
+        document.getElementById('latValue').textContent = '-';
+        document.getElementById('lngValue').textContent = '-';
+        document.getElementById('akurasiGps').value = '';
+        document.getElementById('waktuGps').value = '';
+        document.getElementById('btnOpenMaps').disabled = true;
+        
+        const statusIcon = document.getElementById('locStatusIcon');
+        statusIcon.className = 'status-icon idle';
+        statusIcon.innerHTML = '<i class="fas fa-map-pin"></i>';
+        document.getElementById('locStatusText').textContent = 'Lokasi belum diambil';
+        
+        // Generate ID baru
+        sessionStorage.removeItem('cs77_current_doc_id');
+        document.getElementById('docId').value = generateDocId();
+    }
+
+    // =========================================================
+    // 10. INIT
+    // =========================================================
+    window.addEventListener('load', function() {
+        updateLiveTime();
+        document.getElementById('docId').value = generateDocId();
+        initSignaturePad();
+        renderPhotos();
+    });
+
+    // Lightbox close dengan ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+    });
+</script>
+
+</body>
+</html>
