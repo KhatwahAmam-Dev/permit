@@ -1,16 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS77 - Permit Verification</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #f4f7f6;
-            margin: 0; padding: 20px;
+        :root {
+            --primary-blue: #0056b3;
+            --dark-blue: #003d82;
+            --primary-orange: #ff6600;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --warning-yellow: #ffc107;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Top Navigation */
         .top-nav {
             background: var(--primary-blue);
             padding: 12px 30px;
@@ -18,29 +31,32 @@
             justify-content: space-between;
             align-items: center;
             color: #fff;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .top-nav .brand { font-weight: bold; font-size: 18px; }
+        .top-nav .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
         .top-nav a {
             color: #fff;
             text-decoration: none;
             padding: 8px 15px;
             border-radius: 5px;
             background: rgba(255,255,255,0.15);
-            font-size: 14px;
-            margin-left: 10px;
+            font-size: 13px;
             transition: 0.3s;
         }
-        .top-nav a:hover { background: rgba(255,255,255,0.3); }
+        .top-nav a:hover, .top-nav a.active { background: var(--primary-orange); }
+
         .verify-container {
             max-width: 600px;
-            margin: 0 auto;
+            margin: 20px auto;
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         .verify-header {
-            background: #0056b3;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: #fff;
             padding: 25px;
             text-align: center;
@@ -48,6 +64,7 @@
         .verify-header h1 { margin: 0; font-size: 22px; }
         .verify-header p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
         .verify-body { padding: 25px; }
+
         .status-banner {
             padding: 15px;
             border-radius: 8px;
@@ -59,35 +76,90 @@
         .status-banner.active { background: #d4edda; color: #155724; }
         .status-banner.closed { background: #f8d7da; color: #721c24; }
         .status-banner.notfound { background: #fff3cd; color: #856404; }
+        .status-banner.loading { background: #e7f3ff; color: var(--primary-blue); }
+
         .info-row {
             display: flex;
             padding: 10px 0;
             border-bottom: 1px solid #eee;
             font-size: 14px;
         }
-        .info-row .label { font-weight: 600; width: 140px; color: #666; flex-shrink: 0; }
+        .info-row:last-of-type { border-bottom: none; }
+        .info-row .label {
+            font-weight: 600;
+            width: 140px;
+            color: #666;
+            flex-shrink: 0;
+        }
         .info-row .value { color: #222; word-break: break-word; }
+
+        .badge-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: var(--primary-blue);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .qr-section .qr-icon {
+            font-size: 40px;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+        .qr-section p {
+            font-size: 12px;
+            color: #666;
+        }
+
         .back-btn {
             display: block;
             text-align: center;
             margin-top: 20px;
             padding: 12px;
-            background: #0056b3;
+            background: var(--primary-blue);
             color: #fff;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--dark-blue); }
+        .back-btn.wa { background: var(--success-green); }
+        .back-btn.wa:hover { background: #218838; }
+
+        @media (max-width: 600px) {
+            .top-nav { padding: 12px 15px; }
+            .top-nav .brand { font-size: 15px; }
+            .top-nav a { font-size: 12px; padding: 6px 10px; }
+            .verify-container { margin: 15px; }
+            .info-row { flex-direction: column; }
+            .info-row .label { width: 100%; margin-bottom: 3px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- TOP NAVIGATION -->
     <div class="top-nav">
-    <div class="brand"><i class="fas fa-hard-hat"></i> CS77 Permit to Work</div>
-    <div>
-        <a href="index.html"><i class="fas fa-file-alt"></i> Form Permit</a>
-        <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard Register</a>
+        <div class="brand"><i class="fas fa-hard-hat"></i> CS77 Permit to Work</div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-file-alt"></i> Form Permit</a>
+            <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="dokumentasi.html"><i class="fas fa-camera"></i> Dokumentasi</a>
+            <a href="verify.html" class="active"><i class="fas fa-shield-alt"></i> Verify</a>
+        </div>
     </div>
-</div>
+
+    <!-- VERIFY CONTAINER -->
     <div class="verify-container">
         <div class="verify-header">
             <i class="fas fa-shield-alt" style="font-size: 40px; margin-bottom: 10px;"></i>
@@ -95,7 +167,7 @@
             <p>Sistem Verifikasi Izin Kerja Digital</p>
         </div>
         <div class="verify-body" id="verifyBody">
-            <div class="status-banner notfound">
+            <div class="status-banner loading">
                 <i class="fas fa-spinner fa-spin"></i> Memuat data...
             </div>
         </div>
@@ -107,48 +179,118 @@
             const permitNo = params.get('permit');
             const body = document.getElementById('verifyBody');
 
+            // Cek apakah permit number ada di URL
             if (!permitNo) {
-                body.innerHTML = '<div class="status-banner notfound"><i class="fas fa-exclamation-triangle"></i> Permit number tidak ditemukan di URL.</div>';
+                body.innerHTML = `
+                    <div class="status-banner notfound">
+                        <i class="fas fa-exclamation-triangle"></i> Permit number tidak ditemukan
+                    </div>
+                    <p style="text-align:center; color:#666; font-size:14px;">
+                        URL tidak menyertakan parameter permit. Silakan scan QR Code yang tertera pada dokumen permit untuk verifikasi.
+                    </p>
+                    <a href="dashboard.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                    </a>
+                `;
                 return;
             }
 
+            // Ambil data permit dari localStorage
             const permits = JSON.parse(localStorage.getItem('cs77_permits') || '[]');
             const p = permits.find(x => x.permitNo === permitNo);
 
+            // Kalau permit tidak ditemukan
             if (!p) {
                 body.innerHTML = `
                     <div class="status-banner notfound">
                         <i class="fas fa-exclamation-triangle"></i><br>
                         Permit Tidak Ditemukan
                     </div>
-                    <p style="text-align:center; color:#666;">
+                    <p style="text-align:center; color:#666; font-size:14px;">
                         Permit dengan nomor <strong>${permitNo}</strong> tidak terdaftar di sistem ini.
                         Pastikan QR Code di-scan di perangkat yang sama dengan yang menyimpan data permit.
                     </p>
-                    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+                    <a href="dashboard.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                    </a>
                 `;
                 return;
             }
 
+            // Kalau permit ditemukan, tampilkan detail
             const statusClass = p.status === 'ACTIVE' ? 'active' : 'closed';
             const statusIcon = p.status === 'ACTIVE' ? 'fa-check-circle' : 'fa-lock';
-            
+
             body.innerHTML = `
                 <div class="status-banner ${statusClass}">
                     <i class="fas ${statusIcon}"></i> ${p.status}
                 </div>
-                <div class="info-row"><div class="label">Permit No</div><div class="value"><strong>${p.permitNo}</strong></div></div>
-                <div class="info-row"><div class="label">Permit Type</div><div class="value">${p.permitType}</div></div>
-                <div class="info-row"><div class="label">Location</div><div class="value">${p.location}</div></div>
-                <div class="info-row"><div class="label">Valid From</div><div class="value">${p.validFrom}</div></div>
-                <div class="info-row"><div class="label">Valid To</div><div class="value">${p.validTo}</div></div>
-                <div class="info-row"><div class="label">IA</div><div class="value">${p.ia}</div></div>
-                <div class="info-row"><div class="label">PA</div><div class="value">${p.pa}</div></div>
-                <div class="info-row"><div class="label">AA</div><div class="value">${p.aa}</div></div>
-                <div class="info-row"><div class="label">Job Description</div><div class="value">${p.jobDesc}</div></div>
-                <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+
+                <div class="info-row">
+                    <div class="label">Permit No</div>
+                    <div class="value"><strong>${p.permitNo}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Permit Type</div>
+                    <div class="value"><span class="badge-type">${p.permitType}</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Location</div>
+                    <div class="value">${p.location}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Valid From</div>
+                    <div class="value">${formatDate(p.validFrom)}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Valid To</div>
+                    <div class="value">${formatDate(p.validTo)}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Issuing Authority</div>
+                    <div class="value">${p.ia}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Performing Authority</div>
+                    <div class="value">${p.pa}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Area Authority</div>
+                    <div class="value">${p.aa}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Job Description</div>
+                    <div class="value">${p.jobDesc}</div>
+                </div>
+
+                <div class="qr-section">
+                    <div class="qr-icon"><i class="fas fa-shield-check"></i></div>
+                    <p><strong>✓ Verified by CS77 System</strong><br>
+                    Permit ini terdaftar dan valid di sistem CS77.</p>
+                </div>
+
+                <a href="dashboard.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                </a>
             `;
         });
+
+        // Helper: format tanggal
+        function formatDate(dt) {
+            if (!dt) return '-';
+            try {
+                const d = new Date(dt);
+                return d.toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return dt;
+            }
+        }
     </script>
 </body>
 </html>
