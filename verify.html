@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS77 - Permit Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f4f7f6;
+            margin: 0; padding: 20px;
+        }
+        .verify-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .verify-header {
+            background: #0056b3;
+            color: #fff;
+            padding: 25px;
+            text-align: center;
+        }
+        .verify-header h1 { margin: 0; font-size: 22px; }
+        .verify-header p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+        .verify-body { padding: 25px; }
+        .status-banner {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .status-banner.active { background: #d4edda; color: #155724; }
+        .status-banner.closed { background: #f8d7da; color: #721c24; }
+        .status-banner.notfound { background: #fff3cd; color: #856404; }
+        .info-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .info-row .label { font-weight: 600; width: 140px; color: #666; flex-shrink: 0; }
+        .info-row .value { color: #222; word-break: break-word; }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background: #0056b3;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-header">
+            <i class="fas fa-shield-alt" style="font-size: 40px; margin-bottom: 10px;"></i>
+            <h1>CS77 Permit Verification</h1>
+            <p>Sistem Verifikasi Izin Kerja Digital</p>
+        </div>
+        <div class="verify-body" id="verifyBody">
+            <div class="status-banner notfound">
+                <i class="fas fa-spinner fa-spin"></i> Memuat data...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            const params = new URLSearchParams(window.location.search);
+            const permitNo = params.get('permit');
+            const body = document.getElementById('verifyBody');
+
+            if (!permitNo) {
+                body.innerHTML = '<div class="status-banner notfound"><i class="fas fa-exclamation-triangle"></i> Permit number tidak ditemukan di URL.</div>';
+                return;
+            }
+
+            const permits = JSON.parse(localStorage.getItem('cs77_permits') || '[]');
+            const p = permits.find(x => x.permitNo === permitNo);
+
+            if (!p) {
+                body.innerHTML = `
+                    <div class="status-banner notfound">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        Permit Tidak Ditemukan
+                    </div>
+                    <p style="text-align:center; color:#666;">
+                        Permit dengan nomor <strong>${permitNo}</strong> tidak terdaftar di sistem ini.
+                        Pastikan QR Code di-scan di perangkat yang sama dengan yang menyimpan data permit.
+                    </p>
+                    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+                `;
+                return;
+            }
+
+            const statusClass = p.status === 'ACTIVE' ? 'active' : 'closed';
+            const statusIcon = p.status === 'ACTIVE' ? 'fa-check-circle' : 'fa-lock';
+            
+            body.innerHTML = `
+                <div class="status-banner ${statusClass}">
+                    <i class="fas ${statusIcon}"></i> ${p.status}
+                </div>
+                <div class="info-row"><div class="label">Permit No</div><div class="value"><strong>${p.permitNo}</strong></div></div>
+                <div class="info-row"><div class="label">Permit Type</div><div class="value">${p.permitType}</div></div>
+                <div class="info-row"><div class="label">Location</div><div class="value">${p.location}</div></div>
+                <div class="info-row"><div class="label">Valid From</div><div class="value">${p.validFrom}</div></div>
+                <div class="info-row"><div class="label">Valid To</div><div class="value">${p.validTo}</div></div>
+                <div class="info-row"><div class="label">IA</div><div class="value">${p.ia}</div></div>
+                <div class="info-row"><div class="label">PA</div><div class="value">${p.pa}</div></div>
+                <div class="info-row"><div class="label">AA</div><div class="value">${p.aa}</div></div>
+                <div class="info-row"><div class="label">Job Description</div><div class="value">${p.jobDesc}</div></div>
+                <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+            `;
+        });
+    </script>
+</body>
+</html>
