@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS77 - Permit Register Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --primary-orange: #ff6600;
+            --bg-light: #f4f7f6;
+            --text-dark: #333;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            margin: 0; padding: 0;
+            color: var(--text-dark);
+        }
+        .top-nav {
+            background: var(--primary-blue);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+        .top-nav .brand { font-weight: bold; font-size: 18px; }
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.15);
+            font-size: 14px;
+            margin-left: 10px;
+            transition: 0.3s;
+        }
+        .top-nav a:hover { background: rgba(255,255,255,0.3); }
+
+        .dashboard-container {
+            max-width: 1300px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .dashboard-header h1 {
+            color: var(--primary-blue);
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* Stat Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary-blue);
+        }
+        .stat-card.orange { border-left-color: var(--primary-orange); }
+        .stat-card.green { border-left-color: var(--success-green); }
+        .stat-card.red { border-left-color: var(--danger-red); }
+        .stat-card .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        .stat-card.orange .value { color: var(--primary-orange); }
+        .stat-card.green .value { color: var(--success-green); }
+        .stat-card.red .value { color: var(--danger-red); }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .filter-bar input { flex: 1; min-width: 200px; }
+
+        /* Table */
+        .table-wrapper {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        thead {
+            background: var(--primary-blue);
+            color: #fff;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody tr:hover { background: #f8f9fa; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-closed { background: #f8d7da; color: #721c24; }
+        .badge-type {
+            background: #e7f3ff;
+            color: #0056b3;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #fff;
+            margin-right: 3px;
+        }
+        .btn-view { background: var(--primary-blue); }
+        .btn-delete { background: var(--danger-red); }
+        .btn-view:hover { background: #003d82; }
+        .btn-delete:hover { background: #c82333; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state i { font-size: 50px; margin-bottom: 15px; color: #ddd; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { margin: 0; color: var(--primary-blue); font-size: 20px; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .detail-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            font-size: 14px;
+        }
+        .detail-row .label { font-weight: 600; color: #555; }
+        .detail-row .value { color: #222; }
+        .signature-preview {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            background: #fafafa;
+            max-width: 200px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <div class="brand"><i class="fas fa-hard-hat"></i> CS77 Permit to Work</div>
+    <div>
+        <a href="index.html"><i class="fas fa-file-alt"></i> Form Permit</a>
+        <a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard Register</a>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-chart-line"></i> Permit Register Dashboard</h1>
+        <button class="action-btn btn-view" style="padding: 10px 20px;" onclick="exportAllToCSV()">
+            <i class="fas fa-file-csv"></i> Export All to CSV
+        </button>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="label">Total Permits</div>
+            <div class="value" id="totalPermits">0</div>
+        </div>
+        <div class="stat-card green">
+            <div class="label">Active</div>
+            <div class="value" id="activePermits">0</div>
+        </div>
+        <div class="stat-card red">
+            <div class="label">Closed</div>
+            <div class="value" id="closedPermits">0</div>
+        </div>
+        <div class="stat-card orange">
+            <div class="label">Hot Work / Confined</div>
+            <div class="value" id="highRiskPermits">0</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Cari permit no, lokasi, atau nama..." oninput="renderTable()">
+        <select id="filterStatus" onchange="renderTable()">
+            <option value="">All Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="CLOSED">Closed</option>
+        </select>
+        <select id="filterType" onchange="renderTable()">
+            <option value="">All Types</option>
+            <option value="Hot Work">Hot Work</option>
+            <option value="Confined Space">Confined Space</option>
+            <option value="Work at Height">Work at Height</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Excavation">Excavation</option>
+            <option value="General">General</option>
+        </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Permit No</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>PA</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="permitTableBody">
+                <tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Belum ada permit tersimpan.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Detail -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Permit Detail</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    let allPermits = [];
+
+    // =========================================================
+    // LOAD & RENDER
+    // =========================================================
+    function loadPermits() {
+        allPermits = JSON.parse(localStorage.getItem('cs77_permits') || '[]');
+        // Urutkan dari terbaru
+        allPermits.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        updateStats();
+        renderTable();
+    }
+
+    function updateStats() {
+        document.getElementById('totalPermits').textContent = allPermits.length;
+        document.getElementById('activePermits').textContent = allPermits.filter(p => p.status === 'ACTIVE').length;
+        document.getElementById('closedPermits').textContent = allPermits.filter(p => p.status === 'CLOSED').length;
+        document.getElementById('highRiskPermits').textContent = allPermits.filter(p => p.permitType === 'Hot Work' || p.permitType === 'Confined Space').length;
+    }
+
+    function renderTable() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const filterStatus = document.getElementById('filterStatus').value;
+        const filterType = document.getElementById('filterType').value;
+
+        const filtered = allPermits.filter(p => {
+            const matchSearch = !search || 
+                (p.permitNo || '').toLowerCase().includes(search) ||
+                (p.location || '').toLowerCase().includes(search) ||
+                (p.pa || '').toLowerCase().includes(search) ||
+                (p.ia || '').toLowerCase().includes(search);
+            const matchStatus = !filterStatus || p.status === filterStatus;
+            const matchType = !filterType || p.permitType === filterType;
+            return matchSearch && matchStatus && matchType;
+        });
+
+        const tbody = document.getElementById('permitTableBody');
+        
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Tidak ada permit yang cocok dengan filter.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(p => `
+            <tr>
+                <td><strong>${p.permitNo || '-'}</strong></td>
+                <td><span class="badge badge-type">${p.permitType || '-'}</span></td>
+                <td>${p.location || '-'}</td>
+                <td>${formatDate(p.validFrom)}</td>
+                <td>${formatDate(p.validTo)}</td>
+                <td>${p.pa || '-'}</td>
+                <td><span class="badge ${p.status === 'ACTIVE' ? 'badge-active' : 'badge-closed'}">${p.status || 'ACTIVE'}</span></td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewDetail('${p.permitNo}')"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn btn-delete" onclick="deletePermit('${p.permitNo}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function formatDate(dt) {
+        if (!dt) return '-';
+        try {
+            const d = new Date(dt);
+            return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } catch (e) { return dt; }
+    }
+
+    // =========================================================
+    // VIEW DETAIL
+    // =========================================================
+    function viewDetail(permitNo) {
+        const p = allPermits.find(x => x.permitNo === permitNo);
+        if (!p) return;
+
+        document.getElementById('modalTitle').textContent = `Permit Detail: ${p.permitNo}`;
+        
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <div class="detail-row"><div class="label">Permit Number</div><div class="value"><strong>${p.permitNo}</strong></div></div>
+            <div class="detail-row"><div class="label">Permit Type</div><div class="value">${p.permitType}</div></div>
+            <div class="detail-row"><div class="label">Status</div><div class="value"><span class="badge ${p.status === 'ACTIVE' ? 'badge-active' : 'badge-closed'}">${p.status}</span></div></div>
+            <div class="detail-row"><div class="label">Location</div><div class="value">${p.location}</div></div>
+            <div class="detail-row"><div class="label">Job Description</div><div class="value">${p.jobDesc}</div></div>
+            <div class="detail-row"><div class="label">Valid From</div><div class="value">${formatDate(p.validFrom)}</div></div>
+            <div class="detail-row"><div class="label">Valid To</div><div class="value">${formatDate(p.validTo)}</div></div>
+            <div class="detail-row"><div class="label">Issuing Authority (IA)</div><div class="value">${p.ia}</div></div>
+            <div class="detail-row"><div class="label">Performing Authority (PA)</div><div class="value">${p.pa}</div></div>
+            <div class="detail-row"><div class="label">Area Authority (AA)</div><div class="value">${p.aa}</div></div>
+            <div class="detail-row"><div class="label">Hazards</div><div class="value">${(p.hazards || []).join(', ') || '-'}</div></div>
+            <div class="detail-row"><div class="label">PPE Required</div><div class="value">${(p.ppe || []).join(', ') || '-'}</div></div>
+            <div class="detail-row"><div class="label">Isolation / LOTO</div><div class="value">${(p.isolationTypes || []).join(', ') || '-'}<br>Lock: ${p.lockNo || '-'} | Tag: ${p.tagNo || '-'}</div></div>
+            <div class="detail-row"><div class="label">Gas Test</div><div class="value">O2: ${p.gasO2 || '-'} | LEL: ${p.gasLEL || '-'} | H2S: ${p.gasH2S || '-'} | CO: ${p.gasCO || '-'}</div></div>
+            <div class="detail-row"><div class="label">Closed By</div><div class="value">${p.closedBy || '-'} ${p.closureDate ? '(' + formatDate(p.closureDate) + ')' : ''}</div></div>
+        `;
+
+        // Tampilkan signature jika ada
+        const sigs = [
+            { label: 'IA Signature', data: p.sigIA, name: p.iaName },
+            { label: 'PA Signature', data: p.sigPA, name: p.paName },
+            { label: 'AA Signature', data: p.sigAA, name: p.aaName }
+        ];
+        sigs.forEach(s => {
+            if (s.data) {
+                body.innerHTML += `
+                    <div class="detail-row">
+                        <div class="label">${s.label}</div>
+                        <div class="value">
+                            <div>${s.name || ''}</div>
+                            <img src="${s.data}" class="signature-preview" alt="${s.label}">
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('detailModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // =========================================================
+    // DELETE PERMIT
+    // =========================================================
+    function deletePermit(permitNo) {
+        if (!confirm(`⚠️ Yakin ingin menghapus permit ${permitNo}? Tindakan ini tidak bisa dibatalkan.`)) return;
+        
+        allPermits = allPermits.filter(p => p.permitNo !== permitNo);
+        localStorage.setItem('cs77_permits', JSON.stringify(allPermits));
+        loadPermits();
+    }
+
+    // =========================================================
+    // EXPORT ALL TO CSV
+    // =========================================================
+    function exportAllToCSV() {
+        if (allPermits.length === 0) {
+            alert('⚠️ Belum ada permit untuk di-export.');
+            return;
+        }
+
+        let csv = "Permit No,Type,Status,Location,Job Description,IA,PA,AA,Valid From,Valid To,Hazards,PPE,Lock No,Tag No,Closed By,Closure Date\n";
+        
+        allPermits.forEach(p => {
+            csv += `"${p.permitNo || ''}","${p.permitType || ''}","${p.status || ''}","${(p.location || '').replace(/"/g, '""')}","${(p.jobDesc || '').replace(/"/g, '""')}","${p.ia || ''}","${p.pa || ''}","${p.aa || ''}","${p.validFrom || ''}","${p.validTo || ''}","${(p.hazards || []).join('; ')}","${(p.ppe || []).join('; ')}","${p.lockNo || ''}","${p.tagNo || ''}","${p.closedBy || ''}","${p.closureDate || ''}"\n`;
+        });
+
+        const link = document.createElement("a");
+        link.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURI(csv));
+        link.setAttribute("download", `CS77_PTW_Register_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Close modal kalau klik di luar
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Init
+    window.addEventListener('load', loadPermits);
+</script>
+
+</body>
+</html>
